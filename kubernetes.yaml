@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-test-vaadin
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app-test-vaadin
+  template:
+    metadata:
+      labels:
+        app: my-app-test-vaadin
+    spec:
+      containers:
+        - name: my-app-test-vaadin
+          image: my-app-test-vaadin:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: '1'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-test-vaadin-balancer
+spec:
+  selector:
+    app: my-app-test-vaadin
+  ports:
+    - protocol: TCP
+      port: 8000 # The port to expose to the outside
+      targetPort: 8080 # The port the application is running on in the pods
+  type: LoadBalancer
+  sessionAffinity: ClientIP
